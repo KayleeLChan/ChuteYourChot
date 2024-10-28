@@ -10,9 +10,13 @@ public class UIController : MonoBehaviour
     [SerializeField] public GameObject startCanvas;
     [SerializeField] public GameObject endCanvas;
     [SerializeField] private GameObject[] itemScores;
-    [SerializeField] private GameObject organicText;
-    [SerializeField] private GameObject recyclingText;
+    [SerializeField] public GameObject organicText;
+    [SerializeField] public GameObject recyclingText;
     [SerializeField] private GameObject trashText;
+    [SerializeField] private GameObject recyclingWall;
+    [SerializeField] private GameObject trashWall;
+    [SerializeField] private GameObject restartButton;
+    [SerializeField] public bool initialScoreRevealed = false;
 
     // Start is called before the first frame update
     void Start()
@@ -30,6 +34,9 @@ public class UIController : MonoBehaviour
 
     public void RevealScore()
     {
+        // If already revealed, return early
+        if (initialScoreRevealed) { return; }
+        restartButton.SetActive(false);
         endCanvas.SetActive(true);
         for (int i = 0; i < itemScores.Length; i++) {
             GameObject itemScore = itemScores[i];
@@ -49,36 +56,25 @@ public class UIController : MonoBehaviour
                     break;
             }
 
-            itemScore.GetComponent<TMP_Text>().SetText(currScore);
-            //StartCoroutine(CountScore(currScore, score, itemScore));
+            initialScoreRevealed = true;
+            itemScore.GetComponent<TMP_Text>().SetText(score);
         }
 
-        if (gameController.isRecyclingContaminated && gameController.isOrganicContaminated)
+        if (gameController.isRecyclingContaminated || gameController.isOrganicContaminated)
         {
-            Delay(2f);
-            RevealDoubleContamination();
-        }
-        else if (gameController.isRecyclingContaminated || gameController.isOrganicContaminated)
-        {
-            Delay(2f);
-            RevealSingleContamination();
+            Invoke("RevealContamination", 5f);
         } 
         else
         {
-            RevealRecyclingCut();
+            Invoke("RevealRecyclingCut", 5f);
         }
     }
 
-    public void RevealDoubleContamination()
-    {
-
-    }
-
-    public void RevealSingleContamination()
+    private void RevealContamination()
     {
         if (gameController.isOrganicContaminated)
         {
-            organicText.GetComponent<TMP_Text>().SetText("Unfortunately, your organics are contaminated with inorganics");
+            organicText.GetComponent<TMP_Text>().SetText("Unfortunately, your organics are contaminated with inorganics:");
             for (int i = 0; i < itemScores.Length; i++)
             {
                 GameObject itemScore = itemScores[i];
@@ -88,12 +84,11 @@ public class UIController : MonoBehaviour
                     itemScore.GetComponent<TMP_Text>().SetText("0");
                 }
             }
-            Delay(2f);
-            RevealRecyclingCut();
         }
-        else
+        
+        if (gameController.isRecyclingContaminated)
         {
-            recyclingText.GetComponent<TMP_Text>().SetText("Unfortunately, your recyclables are contaminated with non-recyclables");
+            recyclingText.GetComponent<TMP_Text>().SetText("Unfortunately, your recyclables are contaminated with non-recyclables:");
             for (int i = 0; i < itemScores.Length; i++)
             {
                 GameObject itemScore = itemScores[i];
@@ -103,13 +98,21 @@ public class UIController : MonoBehaviour
                     itemScore.GetComponent<TMP_Text>().SetText("0");
                 }
             }
+            Invoke("AllowRestart", 3f);
+        }
+        else {
+            Invoke("RevealRecyclingCut", 5f);
         }
     }
 
-    public void RevealRecyclingCut()
+    private void RevealRecyclingCut()
     {
-        Delay(2f);
-        recyclingText.GetComponent<TMP_Text>().SetText("Unfortunately, only ~35% of recyclables are actually recycled");
+        // If already revealed, return early
+        if (restartButton.activeSelf) { return; }
+
+        recyclingText.GetComponent<TMP_Text>().SetText("Unfortunately, only ~35% of recyclables are actually recycled:");
+        recyclingWall.SetActive(false);
+        trashWall.SetActive(false);
         for (int i = 0; i < itemScores.Length; i++)
         {
             GameObject itemScore = itemScores[i];
@@ -120,21 +123,13 @@ public class UIController : MonoBehaviour
                 itemScore.GetComponent<TMP_Text>().SetText(updatedScore.ToString());
             }
         }
+        Invoke("AllowRestart", 3f);
     }
 
-    IEnumerator Delay(float delay)
+    private void AllowRestart()
     {
-        yield return new WaitForSeconds(delay);
-    }
-
-    IEnumerator CountScore(string currScore, string score, GameObject itemScore)
-    {
-        while (currScore != score)
-        {
-            int incrementedScore = int.Parse(currScore) + 1;
-            currScore = incrementedScore.ToString();
-            itemScore.GetComponent<TMP_Text>().SetText(currScore);
-            yield return new WaitForSeconds(0.5f);
-        }
+        recyclingWall.SetActive(true);
+        trashWall.SetActive(true);
+        restartButton.SetActive(true);
     }
 }

@@ -8,7 +8,7 @@ public class ItemGenerator : MonoBehaviour
     [SerializeField] private GameController gameController;
 
     [Header("Spawn Settings")]
-    [SerializeField] private int phase;
+    [SerializeField] public int phase = 0;
     [SerializeField] private Transform spawnParent;
     [SerializeField] private float timeBetweenSpawns = 3f;
     [SerializeField] private int numberItemsSpawned = 1;
@@ -24,7 +24,6 @@ public class ItemGenerator : MonoBehaviour
     void Start()
     {
         gameController = Object.FindObjectOfType<GameController>();
-        phase = 0;
 
         if (timeBetweenSpawns < 2)
         {
@@ -58,6 +57,11 @@ public class ItemGenerator : MonoBehaviour
             timeBetweenSpawns -= 0.5f;
             numberItemsSpawned++;
             phase = 1;
+        }
+        else if (phase == 0)
+        {
+            timeBetweenSpawns = 3f;
+            numberItemsSpawned = 1;
         }
     }
 

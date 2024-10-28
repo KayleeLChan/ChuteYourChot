@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class GameController : MonoBehaviour
@@ -23,8 +25,8 @@ public class GameController : MonoBehaviour
     [SerializeField] public bool gameStarted = false;
     [SerializeField] public float gameLength = 30f;
     [SerializeField] public float timeRemaining;
-    [SerializeField] private float zoomElapsed;
-    [SerializeField] private float zoomDuration;
+    [SerializeField] private float zoomElapsed = 0f;
+    [SerializeField] private float zoomDuration = 2f;
     [SerializeField] private UIController UIController;
     [SerializeField] private ItemGenerator itemGenerator;
 
@@ -32,12 +34,8 @@ public class GameController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        isOrganicContaminated = false;
-        isRecyclingContaminated = false;
-        zoomDuration = 2;
-        timeRemaining = gameLength;
-        UIController = Object.FindObjectOfType<UIController>();
-        itemGenerator = Object.FindObjectOfType<ItemGenerator>();
+        UIController = GameObject.FindObjectOfType<UIController>();
+        itemGenerator = GameObject.FindObjectOfType<ItemGenerator>();
     }
 
     // Update is called once per frame
@@ -103,9 +101,27 @@ public class GameController : MonoBehaviour
 
     public void StartGame()
     {
+        // Clear out scores
+        isOrganicContaminated = false;
+        isRecyclingContaminated = false;
+        timeRemaining = gameLength;
+        organicScore = 0;
+        trashScore = 0;
+        recyclingScore = 0;
+        itemGenerator.phase = 0;
+
+        // Remove UIs
+        UIController.startCanvas.SetActive(false);
+        UIController.endCanvas.SetActive(false);
+        UIController.initialScoreRevealed = false;
+        UIController.organicText.GetComponent<TMP_Text>().SetText("Single Use Items Composted:");
+        UIController.recyclingText.GetComponent<TMP_Text>().SetText("Single Use Items Recycled:");
+        zoomElapsed = 0f;
+        Camera.main.orthographicSize = 5;
+
+        // Start game
         itemGenerator.Generate();
         gameStarted = true;
-        UIController.startCanvas.SetActive(false);
     }
 
     public void EndGame()
@@ -113,7 +129,7 @@ public class GameController : MonoBehaviour
         gameStarted = false;
 
         // Return early and try again if not all items have been scored
-        ItemBehaviour[] items = Object.FindObjectsOfType<ItemBehaviour>();
+        ItemBehaviour[] items = GameObject.FindObjectsOfType<ItemBehaviour>();
         for (int i = 0; i < items.Length; i++)
         {
             if (!items[i].isScored)
