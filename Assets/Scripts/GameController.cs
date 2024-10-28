@@ -111,11 +111,7 @@ public class GameController : MonoBehaviour
         itemGenerator.phase = 0;
 
         // Remove UIs
-        UIController.startCanvas.SetActive(false);
-        UIController.endCanvas.SetActive(false);
-        UIController.initialScoreRevealed = false;
-        UIController.organicText.GetComponent<TMP_Text>().SetText("Single Use Items Composted:");
-        UIController.recyclingText.GetComponent<TMP_Text>().SetText("Single Use Items Recycled:");
+        UIController.ResetUIs();
         zoomElapsed = 0f;
         Camera.main.orthographicSize = 5;
 

@@ -7,16 +7,18 @@ using UnityEngine.SocialPlatforms.Impl;
 public class UIController : MonoBehaviour
 {
     [SerializeField] private GameController gameController;
-    [SerializeField] public GameObject startCanvas;
-    [SerializeField] public GameObject endCanvas;
-    [SerializeField] private GameObject[] itemScores;
-    [SerializeField] public GameObject organicText;
-    [SerializeField] public GameObject recyclingText;
-    [SerializeField] private GameObject trashText;
     [SerializeField] private GameObject recyclingWall;
     [SerializeField] private GameObject trashWall;
+    [SerializeField] private bool initialScoreRevealed = false;
+
+    [Header("UI References")]
+    [SerializeField] private GameObject startCanvas;
+    [SerializeField] private GameObject endCanvas;
+    [SerializeField] private GameObject trashText;
+    [SerializeField] private GameObject[] itemScores;
+    [SerializeField] private GameObject organicText;
+    [SerializeField] private GameObject recyclingText;
     [SerializeField] private GameObject restartButton;
-    [SerializeField] public bool initialScoreRevealed = false;
 
     // Start is called before the first frame update
     void Start()
@@ -68,6 +70,15 @@ public class UIController : MonoBehaviour
         {
             Invoke("RevealRecyclingCut", 5f);
         }
+    }
+
+    public void ResetUIs()
+    {
+        startCanvas.SetActive(false);
+        endCanvas.SetActive(false);
+        initialScoreRevealed = false;
+        organicText.GetComponent<TMP_Text>().SetText("Single Use Items Composted:");
+        recyclingText.GetComponent<TMP_Text>().SetText("Single Use Items Recycled:");
     }
 
     private void RevealContamination()
